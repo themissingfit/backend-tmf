@@ -161,7 +161,8 @@ MIDDLEWARE.insert(
     "whitenoise.middleware.WhiteNoiseMiddleware"
 )
 
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+# specific for WhiteNoise
+STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SECURE_SSL_REDIRECT = True
