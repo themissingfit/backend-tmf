@@ -1,8 +1,3 @@
-"""
-Django settings for missingfit_backend
-Production-ready for Render + Supabase + Cloudinary + Vercel
-"""
-
 from pathlib import Path
 import os
 from dotenv import load_dotenv
@@ -13,12 +8,10 @@ load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# ==============================================================================
+# -----------------------------------------------------------------------------
 # SECURITY
-# ==============================================================================
-
+# -----------------------------------------------------------------------------
 SECRET_KEY = os.getenv("SECRET_KEY")
-
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
 ALLOWED_HOSTS = [
@@ -32,65 +25,63 @@ CSRF_TRUSTED_ORIGINS = [
     "https://themissingfit.vercel.app",
 ]
 
-# ==============================================================================
-# APPLICATIONS
-# ==============================================================================
-
+# -----------------------------------------------------------------------------
+# APPS
+# -----------------------------------------------------------------------------
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-
-    'cloudinary',
-    'corsheaders',
-    'rest_framework',
-    'rentals',
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "cloudinary",
+    "corsheaders",
+    "rest_framework",
+    "rentals",
 ]
 
-# ==============================================================================
+# -----------------------------------------------------------------------------
 # MIDDLEWARE
-# ==============================================================================
-
+# -----------------------------------------------------------------------------
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
-
-    'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
-
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = 'missingfit_backend.urls'
+ROOT_URLCONF = "missingfit_backend.urls"
 
+# -----------------------------------------------------------------------------
+# TEMPLATES
+# -----------------------------------------------------------------------------
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'missingfit_backend.wsgi.application'
+WSGI_APPLICATION = "missingfit_backend.wsgi.application"
 
-# ==============================================================================
+# -----------------------------------------------------------------------------
 # DATABASE (Supabase)
-# ==============================================================================
-
+# -----------------------------------------------------------------------------
 DATABASES = {
     "default": dj_database_url.config(
         default=os.getenv("DATABASE_URL"),
@@ -99,56 +90,61 @@ DATABASES = {
     )
 }
 
-# Enable connection health checks (important for managed DBs)
 CONN_HEALTH_CHECKS = True
 
-# ==============================================================================
-# CACHE (Lightweight In-Memory)
-# ==============================================================================
-
+# -----------------------------------------------------------------------------
+# CACHE (free tier safe)
+# -----------------------------------------------------------------------------
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-        "LOCATION": "unique-missingfit",
+        "LOCATION": "missingfit-cache",
     }
 }
 
-# ==============================================================================
-# PASSWORD VALIDATION
-# ==============================================================================
+# -----------------------------------------------------------------------------
+# DRF CONFIG
+# -----------------------------------------------------------------------------
+REST_FRAMEWORK = {
+    "DEFAULT_THROTTLE_CLASSES": [
+        "rest_framework.throttling.AnonRateThrottle",
+    ],
+    "DEFAULT_THROTTLE_RATES": {
+        "anon": "120/min",
+        "burst": "2000/day",
+    },
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
+    "PAGE_SIZE": 20, 
+}
 
+# -----------------------------------------------------------------------------
+# PASSWORD VALIDATION
+# -----------------------------------------------------------------------------
 AUTH_PASSWORD_VALIDATORS = [
-    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
+    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
 ]
 
-# ==============================================================================
+# -----------------------------------------------------------------------------
 # INTERNATIONALIZATION
-# ==============================================================================
-
-LANGUAGE_CODE = 'en-in'
-TIME_ZONE = 'Asia/Kolkata'
-USE_I18N = True
+# -----------------------------------------------------------------------------
+LANGUAGE_CODE = "en-in"
+TIME_ZONE = "Asia/Kolkata"
 USE_TZ = True
+USE_I18N = True
 
-# ==============================================================================
-# STATIC FILES
-# ==============================================================================
-
+# -----------------------------------------------------------------------------
+# STATIC
+# -----------------------------------------------------------------------------
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
-
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
-# ==============================================================================
+# -----------------------------------------------------------------------------
 # SECURITY HEADERS
-# ==============================================================================
-
+# -----------------------------------------------------------------------------
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SECURE_SSL_REDIRECT = not DEBUG
-
 SESSION_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_SECURE = not DEBUG
 
@@ -157,10 +153,9 @@ if not DEBUG:
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
 
-# ==============================================================================
+# -----------------------------------------------------------------------------
 # CLOUDINARY
-# ==============================================================================
-
+# -----------------------------------------------------------------------------
 cloudinary.config(
     cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
     api_key=os.getenv("CLOUDINARY_API_KEY"),
@@ -168,32 +163,23 @@ cloudinary.config(
     secure=True,
 )
 
-# ==============================================================================
+# -----------------------------------------------------------------------------
 # CORS
-# ==============================================================================
-
+# -----------------------------------------------------------------------------
 CORS_ALLOW_CREDENTIALS = True
-
 CORS_ALLOWED_ORIGINS = [
     "https://themissingfit.vercel.app",
     "http://localhost:3000",
-    "http://localhost:8080",
 ]
 
-# ==============================================================================
-# LOGGING (minimal production logging)
-# ==============================================================================
-
+# -----------------------------------------------------------------------------
+# LOGGING
+# -----------------------------------------------------------------------------
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
-    "handlers": {
-        "console": {"class": "logging.StreamHandler"},
-    },
-    "root": {
-        "handlers": ["console"],
-        "level": "INFO",
-    },
+    "handlers": {"console": {"class": "logging.StreamHandler"}},
+    "root": {"handlers": ["console"], "level": "INFO"},
 }
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

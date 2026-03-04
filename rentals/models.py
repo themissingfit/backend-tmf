@@ -93,6 +93,7 @@ class DressRentalPeriod(models.Model):
             raise ValidationError("Dress already rented for selected dates.")
 
     def save(self, *args, **kwargs):
+        self.full_clean() 
         super().save(*args, **kwargs)
         self.dress.update_status()
 

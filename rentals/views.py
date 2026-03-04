@@ -1,10 +1,12 @@
 from django.db.models import Q
+from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
-from rest_framework.generics import ListAPIView, RetrieveAPIView
+from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.throttling import AnonRateThrottle
+from rest_framework.pagination import LimitOffsetPagination
 from .models import Dress
 from .serializers import DressSerializer
 
@@ -13,10 +15,16 @@ class BurstThrottle(AnonRateThrottle):
     rate = "2000/day"
 
 
+class StandardLimitOffsetPagination(LimitOffsetPagination):
+    default_limit = 20
+    max_limit = 100
+
+
 @method_decorator(cache_page(60 * 5), name="dispatch")
 class DressListAPIView(ListAPIView):
     serializer_class = DressSerializer
     throttle_classes = [AnonRateThrottle, BurstThrottle]
+    pagination_class = StandardLimitOffsetPagination 
 
     def get_queryset(self):
         qs = (
@@ -55,27 +63,14 @@ class DressListAPIView(ListAPIView):
 
         return qs.order_by("-is_featured", "-created_at")
 
-    def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-
-        limit = request.query_params.get("limit")
-        offset = request.query_params.get("offset")
-
-        if limit and offset:
-            limit = int(limit)
-            offset = int(offset)
-            queryset = queryset[offset:offset + limit]
-
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
-
 
 class DressAvailabilityAPIView(APIView):
     throttle_classes = [AnonRateThrottle]
 
     def get(self, request, pk):
         date = request.query_params.get("date")
-        dress = Dress.objects.get(pk=pk)
+        
+        dress = get_object_or_404(Dress, pk=pk)
 
         is_available = not dress.rental_periods.filter(
             start_date__lte=date,

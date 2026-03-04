@@ -28,5 +28,8 @@ class DressSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
     def get_available_after(self, obj):
-        latest = obj.rental_periods.order_by("-end_date").first()
-        return latest.end_date if latest else None
+        periods = obj.rental_periods.all()
+        if periods:
+            latest = max(periods, key=lambda p: p.end_date)
+            return latest.end_date
+        return None
