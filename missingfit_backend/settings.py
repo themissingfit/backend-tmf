@@ -185,3 +185,9 @@ LOGGING = {
 }
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# ----------------------------- 
+# Upload safety for low-RAM servers (Render free tier) 
+# ----------------------------- 
+FILE_UPLOAD_MAX_MEMORY_SIZE = 2 * 1024 * 1024 # 2 MB
+DATA_UPLOAD_MAX_MEMORY_SIZE = 2 * 1024 * 1024 # 2 MB
