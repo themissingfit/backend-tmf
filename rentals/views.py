@@ -1,4 +1,4 @@
-from django.db.models import Q
+from django.db.models import Q, Max
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
@@ -7,6 +7,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.throttling import AnonRateThrottle
 from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.exceptions import ValidationError
+
 from .models import Dress
 from .serializers import DressSerializer
 
@@ -24,12 +26,13 @@ class StandardLimitOffsetPagination(LimitOffsetPagination):
 class DressListAPIView(ListAPIView):
     serializer_class = DressSerializer
     throttle_classes = [AnonRateThrottle, BurstThrottle]
-    pagination_class = StandardLimitOffsetPagination 
+    pagination_class = StandardLimitOffsetPagination
 
     def get_queryset(self):
         qs = (
             Dress.objects
-            .prefetch_related("images", "rental_periods")
+            .annotate(available_after=Max("rental_periods__end_date"))
+            .prefetch_related("images")
             .filter(is_active=True)
         )
 
@@ -47,6 +50,7 @@ class DressListAPIView(ListAPIView):
 
         if min_price:
             qs = qs.filter(price_without_jewelry__gte=min_price)
+
         if max_price:
             qs = qs.filter(price_without_jewelry__lte=max_price)
 
@@ -69,7 +73,10 @@ class DressAvailabilityAPIView(APIView):
 
     def get(self, request, pk):
         date = request.query_params.get("date")
-        
+
+        if not date:
+            raise ValidationError({"date": "Query parameter 'date' is required."})
+
         dress = get_object_or_404(Dress, pk=pk)
 
         is_available = not dress.rental_periods.filter(
