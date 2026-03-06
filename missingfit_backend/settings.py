@@ -45,9 +45,9 @@ INSTALLED_APPS = [
 # MIDDLEWARE
 # -----------------------------------------------------------------------------
 MIDDLEWARE = [
-    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -90,7 +90,7 @@ DATABASES = {
     )
 }
 
-CONN_HEALTH_CHECKS = True
+# CONN_HEALTH_CHECKS = True
 
 # -----------------------------------------------------------------------------
 # CACHE (free tier safe)
